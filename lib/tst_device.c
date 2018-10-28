@@ -28,12 +28,14 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
+#ifdef __linux__
 #include <linux/loop.h>
+#endif
 #include <stdint.h>
 #include <inttypes.h>
 #include "test.h"
 #include "safe_macros.h"
-
+#ifdef __linux__
 #ifndef LOOP_CTL_GET_FREE
 # define LOOP_CTL_GET_FREE 0x4C82
 #endif
@@ -337,13 +339,30 @@ int tst_clear_device(const char *dev)
 
 	return 0;
 }
+#endif
+int tst_release_device(const char *dev)
+{
+	return 0;
+}
+int tst_clear_device(const char *dev)
+{
+	return 0;
+}
+const char *tst_acquire_device__(unsigned int size)
+{
+	return NULL;
+}
+const char *tst_acquire_device_(void (cleanup_fn)(void), unsigned int size)
+{
+	return NULL;
+}
 
 int tst_umount(const char *path)
 {
 	int err, ret, i;
 
 	for (i = 0; i < 50; i++) {
-		ret = umount(path);
+		ret = unmount(path, 0);
 		err = errno;
 
 		if (!ret)
@@ -364,3 +383,4 @@ int tst_umount(const char *path)
 	errno = err;
 	return -1;
 }
+

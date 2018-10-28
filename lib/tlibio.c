@@ -78,6 +78,7 @@
  *
  */
 
+#ifdef __notyet__
 #ifdef __linux__
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -2159,3 +2160,5 @@ char **argv;
 	exit(exit_status);
 }
 #endif
+
+#endif /* __notyet__ */

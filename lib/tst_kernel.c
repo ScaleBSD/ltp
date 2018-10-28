@@ -15,7 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef __linux__
 #include <linux/personality.h>
+#endif
 #include <sys/utsname.h>
 #include "test.h"
 #include "tst_kernel.h"

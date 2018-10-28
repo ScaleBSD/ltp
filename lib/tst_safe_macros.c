@@ -54,10 +54,15 @@ pid_t safe_getpgid(const char *file, const int lineno, pid_t pid)
 	return pgid;
 }
 
+#ifdef HAVE_SYS_FANOTIFY_H
 int safe_fanotify_init(const char *file, const int lineno,
 	unsigned int flags, unsigned int event_f_flags)
+#else
+int safe_fanotify_init(const char *file __unused, const int lineno __unused,
+	unsigned int flags __unused, unsigned int event_f_flags __unused)
+#endif
 {
-	int rval;
+	int rval = 0;
 
 #ifdef HAVE_SYS_FANOTIFY_H
 	rval = fanotify_init(flags, event_f_flags);
@@ -77,6 +82,7 @@ int safe_fanotify_init(const char *file, const int lineno,
 	return rval;
 }
 
+#ifdef __linux__
 int safe_personality(const char *filename, unsigned int lineno,
 		    unsigned long persona)
 {
@@ -89,6 +95,13 @@ int safe_personality(const char *filename, unsigned int lineno,
 
 	return prev_persona;
 }
+#else
+int safe_personality(const char *filename, unsigned int lineno,
+		    unsigned long persona)
+{
+	return 0;
+}
+#endif
 
 int safe_setregid(const char *file, const int lineno,
 		  gid_t rgid, gid_t egid)

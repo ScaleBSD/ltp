@@ -43,6 +43,14 @@
 #include "tst_get_bad_addr.h"
 #include "tst_path_has_mnt_flags.h"
 
+#ifndef __linux__
+#ifndef MAP_LOCKED
+#define MAP_LOCKED 0
+#endif
+#ifndef MAP_POPULATE
+#define MAP_POPULATE 0
+#endif
+#endif
 /*
  * Reports testcase result.
  */

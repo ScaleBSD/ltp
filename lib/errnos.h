@@ -74,6 +74,7 @@ const char *tst_strerrno(int err)
 		/* EWOULDBLOCK == EAGAIN skipped */
 		PAIR(ENOMSG)
 		PAIR(EIDRM)
+#ifdef __linux__
 		PAIR(ECHRNG)
 		PAIR(EL2NSYNC)
 		PAIR(EL3HLT)
@@ -96,16 +97,22 @@ const char *tst_strerrno(int err)
 		PAIR(ENOSR)
 		PAIR(ENONET)
 		PAIR(ENOPKG)
+#endif __linux__
 		PAIR(EREMOTE)
 		PAIR(ENOLINK)
+#ifdef __linux__
 		PAIR(EADV)
 		PAIR(ESRMNT)
 		PAIR(ECOMM)
+#endif		
 		PAIR(EPROTO)
 		PAIR(EMULTIHOP)
+#ifdef __linux__
 		PAIR(EDOTDOT)
+#endif
 		PAIR(EBADMSG)
 		PAIR(EOVERFLOW)
+#ifdef __linux__
 		PAIR(ENOTUNIQ)
 		PAIR(EBADFD)
 		PAIR(EREMCHG)
@@ -114,9 +121,12 @@ const char *tst_strerrno(int err)
 		PAIR(ELIBSCN)
 		PAIR(ELIBMAX)
 		PAIR(ELIBEXEC)
+#endif		
 		PAIR(EILSEQ)
+#ifdef __linux__
 		PAIR(ERESTART)
 		PAIR(ESTRPIPE)
+#endif
 		PAIR(EUSERS)
 		PAIR(ENOTSOCK)
 		PAIR(EDESTADDRREQ)
@@ -147,14 +157,18 @@ const char *tst_strerrno(int err)
 		PAIR(EALREADY)
 		PAIR(EINPROGRESS)
 		PAIR(ESTALE)
+#ifdef __linux__
 		PAIR(EUCLEAN)
 		PAIR(ENOTNAM)
 		PAIR(ENAVAIL)
 		PAIR(EISNAM)
 		PAIR(EREMOTEIO)
+#endif
 		PAIR(EDQUOT)
+#ifdef __linux__
 		PAIR(ENOMEDIUM)
 		PAIR(EMEDIUMTYPE)
+#endif
 		PAIR(ECANCELED)
 #ifdef ENOKEY
 		PAIR(ENOKEY)

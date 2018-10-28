@@ -15,7 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef PR_GET_TIMERSLACK
 #include <sys/prctl.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>

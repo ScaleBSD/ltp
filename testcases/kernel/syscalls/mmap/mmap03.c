@@ -50,7 +50,7 @@
 #include <sys/mman.h>
 #include <setjmp.h>
 
-#include "test.h"
+#include "old/test.h"
 
 #define TEMPFILE	"mmapfile"
 

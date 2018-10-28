@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/mount.h>
 #include <sys/wait.h>
 
@@ -57,17 +58,29 @@ static int has_mkfs(const char *fs_type)
 	return 1;
 }
 
+extern void build_iovec(struct iovec **iov, int *iovlen, const char *name, void *val,
+						size_t len);
+
 static int has_kernel_support(const char *fs_type)
 {
 	static int fuse_supported = -1;
 	const char *tmpdir = getenv("TMPDIR");
 	char buf[128];
-	int ret;
+	struct iovec *iov = NULL;
+	int ret, iovlen = 0;
+	const char *dev = "/dev/zero";
 
 	if (!tmpdir)
 		tmpdir = "/tmp";
 
-	mount("/dev/zero", tmpdir, fs_type, 0, NULL);
+	build_iovec(&iov, &iovlen, "fstype",
+         __DECONST(void *, fs_type), (size_t)-1);
+	build_iovec(&iov, &iovlen, "fspath",
+         __DECONST(void *, tmpdir), (size_t)-1);
+	build_iovec(&iov, &iovlen, "from",
+         __DECONST(void *, dev), (size_t)-1);
+
+	nmount(iov, iovlen, 0);
 	if (errno != ENODEV) {
 		tst_res(TINFO, "Kernel supports %s", fs_type);
 		return 1;

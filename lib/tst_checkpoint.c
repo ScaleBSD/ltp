@@ -21,11 +21,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
+#ifndef __linux__
+unsigned int tst_max_futexes;
+void *tst_futexes;
+#endif
 #include <stdint.h>
 #include <limits.h>
 #include <errno.h>
 #include <sys/syscall.h>
+#ifdef __linux__
 #include <linux/futex.h>
+
 
 #include "test.h"
 #include "safe_macros.h"
@@ -34,7 +41,6 @@
 #define DEFAULT_MSEC_TIMEOUT 10000
 
 futex_t *tst_futexes;
-unsigned int tst_max_futexes;
 
 void tst_checkpoint_init(const char *file, const int lineno,
                          void (*cleanup_fn)(void))
@@ -157,3 +163,21 @@ void tst_safe_checkpoint_wake(const char *file, const int lineno,
 		         file, lineno, id, nr_wake, DEFAULT_MSEC_TIMEOUT);
 	}
 }
+#else
+void tst_checkpoint_init(const char *file, const int lineno,
+                         void (*cleanup_fn)(void))
+{
+}
+void tst_safe_checkpoint_wait(const char *file, const int lineno,
+                              void (*cleanup_fn)(void), unsigned int id,
+			      unsigned int msec_timeout)
+{
+
+}
+void tst_safe_checkpoint_wake(const char *file, const int lineno,
+                              void (*cleanup_fn)(void), unsigned int id,
+                              unsigned int nr_wake)
+{
+}
+
+#endif

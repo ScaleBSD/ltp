@@ -92,7 +92,10 @@ void *TST_RET_PTR;
 # endif
 #endif
 
-static pthread_mutex_t tmutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+/*
+ * XXX
+ */
+static pthread_mutex_t tmutex = NULL;
 
 static void check_env(void);
 static void tst_condense(int tnum, int ttype, const char *tmesg);
@@ -152,7 +155,6 @@ const char *strttype(int ttype)
 
 	PAIR_LOOKUP(ttype_pairs, TTYPE_RESULT(ttype));
 }
-
 #include "errnos.h"
 #include "signame.h"
 

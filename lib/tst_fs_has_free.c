@@ -22,7 +22,8 @@
  */
 
 #include <stdint.h>
-#include <sys/vfs.h>
+#include <sys/param.h>
+#include <sys/mount.h>
 #include "test.h"
 #include "tst_fs.h"
 

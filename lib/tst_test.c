@@ -40,6 +40,11 @@
 #include "old_device.h"
 #include "old_tmpdir.h"
 
+#ifndef __linux__
+#define MS_RDONLY MNT_RDONLY
+#define MS_REMOUNT MNT_RELOAD
+#endif
+
 struct tst_test *tst_test;
 
 static const char *tid;
@@ -701,18 +706,38 @@ static void assert_test_fn(void)
 		tst_brk(TBROK, "You can define tcnt only for test()");
 }
 
+extern void build_iovec(struct iovec **iov, int *iovlen, const char *name, void *val,
+						size_t len);
+
 static int prepare_and_mount_ro_fs(const char *dev,
                                    const char *mntpoint,
                                    const char *fs_type)
 {
 	char buf[PATH_MAX];
 
+#ifdef __linux__	
 	if (mount(dev, mntpoint, fs_type, 0, NULL)) {
 		tst_res(TINFO | TERRNO, "Can't mount %s at %s (%s)",
 			dev, mntpoint, fs_type);
 		return 1;
 	}
+#else
+	struct iovec *iov = NULL;
+	int iovlen = 0;
 
+	build_iovec(&iov, &iovlen, "fstype",
+         __DECONST(void *, fs_type), (size_t)-1);
+	build_iovec(&iov, &iovlen, "fspath",
+         __DECONST(void *, mntpoint), (size_t)-1);
+	build_iovec(&iov, &iovlen, "from",
+         __DECONST(void *, dev), (size_t)-1);
+
+	if (nmount(iov, iovlen, 0)) {
+		tst_res(TINFO | TERRNO, "Can't mount %s at %s (%s)",
+			dev, mntpoint, fs_type);
+		return 1;
+	}
+#endif
 	mntpoint_mounted = 1;
 
 	snprintf(buf, sizeof(buf), "%s/dir/", mntpoint);

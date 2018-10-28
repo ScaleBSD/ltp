@@ -38,6 +38,11 @@
 #include "tst_get_bad_addr.h"
 #include "tst_path_has_mnt_flags.h"
 
+#ifndef __linux__
+#define MAP_LOCKED 0
+#define MAP_POPULATE 0
+#endif
+
 /*
  * Ensure that NUMSIGS is defined.
  * It should be defined in signal.h or sys/signal.h on
@@ -111,7 +116,6 @@ typedef struct {
 /* lib/tst_parse_opts.c */
 void tst_parse_opts(int argc, char *argv[], const option_t *user_optarg,
                     void (*user_help)(void));
-
 /* lib/tst_res.c */
 const char *strttype(int ttype);
 

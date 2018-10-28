@@ -25,8 +25,11 @@
  * with this program; if not, write the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+#ifdef __linux__
 #include <sys/vfs.h>
+#else
+#include <sys/mount.h>
+#endif
 #include "test.h"
 #include "tst_fs.h"
 

@@ -22,7 +22,9 @@
 #define TST_NO_DEFAULT_MAIN
 #include "tst_test.h"
 #include "tst_crypto.h"
+#ifdef __linux__
 #include "tst_netlink.h"
+
 
 void tst_crypto_open(struct tst_crypto_session *ses)
 {
@@ -120,3 +122,4 @@ int tst_crypto_del_alg(struct tst_crypto_session *ses,
 
 	return TST_RET;
 }
+#endif

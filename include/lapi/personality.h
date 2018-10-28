@@ -21,7 +21,9 @@
 #ifndef PERSONALITY_H
 #define PERSONALITY_H
 
+#ifdef __linux__
 #include <sys/personality.h>
+#endif
 
 #ifndef UNAME26
 # define UNAME26 0x0020000

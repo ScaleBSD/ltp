@@ -33,6 +33,7 @@
 #include <sys/mman.h>
 
 #include "test.h"
+#include "old/test.h"
 #include "safe_macros.h"
 
 #define MNTPOINT	"mntpoint"

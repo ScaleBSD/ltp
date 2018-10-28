@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __linux__
 #include <malloc.h>
+#endif
 #include "random_range.h"
 
 /*

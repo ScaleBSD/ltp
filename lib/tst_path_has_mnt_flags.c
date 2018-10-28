@@ -15,8 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifdef __linux__
 #include <unistd.h>
+#ifdef __linux__
 #include <mntent.h>
+#else
+#include <sys/mount.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include "test.h"
@@ -81,3 +86,10 @@ int tst_path_has_mnt_flags_(void (cleanup_fn)(void),
 
 	return flags_matched;
 }
+#else
+int tst_path_has_mnt_flags_(void (cleanup_fn)(void),
+	  const char *path, const char *flags[])
+{
+	return (0);
+}
+#endif

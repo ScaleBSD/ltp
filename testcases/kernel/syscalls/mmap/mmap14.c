@@ -38,6 +38,9 @@ char *TCID = "mmap14";
 int TST_TOTAL = 1;
 
 static char *addr;
+#ifndef __linux__
+#define MAP_LOCKED 0
+#endif
 
 static void getvmlck(unsigned int *lock_sz);
 static void setup(void);

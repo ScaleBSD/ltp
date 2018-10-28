@@ -5,7 +5,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/mount.h>
+#ifdef __linux__
 #include <sys/xattr.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <libgen.h>
@@ -13,8 +15,8 @@
 #include <pwd.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <malloc.h>
 #include "test.h"
 #include "safe_macros.h"
 
@@ -643,7 +645,7 @@ void *safe_memalign(const char *file, const int lineno,
 {
 	void *rval;
 
-	rval = memalign(alignment, size);
+	posix_memalign(&rval, alignment, size);
 	if (rval == NULL)
 		tst_brkm(TBROK | TERRNO, cleanup_fn, "memalign failed at %s:%d",
 			 file, lineno);
@@ -719,12 +721,41 @@ static int is_fuse(const char *fs_type)
 	return 0;
 }
 
+void
+build_iovec(struct iovec **iov, int *iovlen, const char *name, void *val,
+            size_t len)
+{
+        int i;
+
+        if (*iovlen < 0)
+                return;
+        i = *iovlen;
+        *iov = realloc(*iov, sizeof **iov * (i + 2));
+        if (*iov == NULL) {
+                *iovlen = -1;
+                return;
+        }
+        (*iov)[i].iov_base = strdup(name);
+        (*iov)[i].iov_len = strlen(name) + 1;
+        i++;
+        (*iov)[i].iov_base = val;
+        if (len == (size_t)-1) {
+                if (val != NULL)
+                        len = strlen(val) + 1;
+                else
+                        len = 0;
+        }
+        (*iov)[i].iov_len = (int)len;
+        *iovlen = ++i;
+}
+
 int safe_mount(const char *file, const int lineno, void (*cleanup_fn)(void),
 	       const char *source, const char *target,
 	       const char *filesystemtype, unsigned long mountflags,
 	       const void *data)
 {
-	int rval;
+	int rval, iovlen = 0;
+	struct iovec *iov = NULL;
 
 	/*
 	 * The FUSE filesystem executes mount.fuse helper, which tries to
@@ -748,8 +779,17 @@ int safe_mount(const char *file, const int lineno, void (*cleanup_fn)(void),
 			 filesystemtype, rval);
 		return -1;
 	}
+	build_iovec(&iov, &iovlen, "fstype",
+         __DECONST(void *, filesystemtype), (size_t)-1);
+	build_iovec(&iov, &iovlen, "fspath",
+         __DECONST(void *, target), (size_t)-1);
+	build_iovec(&iov, &iovlen, "from",
+         __DECONST(void *, source), (size_t)-1);
 
-	rval = mount(source, target, filesystemtype, mountflags, data);
+	/*
+	 * XXX data?
+	 */
+	rval = nmount(iov, iovlen, mountflags);
 	if (rval == -1) {
 		tst_brkm(TBROK | TERRNO, cleanup_fn,
 			 "%s:%d: mount(%s, %s, %s, %lu, %p) failed",
@@ -765,7 +805,7 @@ int safe_umount(const char *file, const int lineno, void (*cleanup_fn)(void),
 {
 	int rval;
 
-	rval = umount(target);
+	rval = unmount(target, 0);
 
 	if (rval == -1) {
 		tst_brkm(TBROK | TERRNO, cleanup_fn,
@@ -832,14 +872,15 @@ int safe_getpriority(const char *file, const int lineno, int which, id_t who)
 	rval = getpriority(which, who);
 	if (errno) {
 		tst_brkm(TBROK | TERRNO, NULL,
-		         "%s:%d getpriority(%i, %i) failed",
-			 file, lineno, which, who);
+		         "%s:%d getpriority(%i, %jx) failed",
+				 file, lineno, which, (intmax_t)who);
 	}
 
 	errno = err;
 	return rval;
 }
 
+#ifdef __linux__
 ssize_t safe_getxattr(const char *file, const int lineno, const char *path,
 		      const char *name, void *value, size_t size)
 {
@@ -993,6 +1034,7 @@ int safe_fremovexattr(const char *file, const int lineno, int fd,
 
 	return rval;
 }
+#endif
 
 int safe_fsync(const char *file, const int lineno, int fd)
 {
@@ -1068,7 +1110,7 @@ int safe_mincore(const char *file, const int lineno, void *start,
 {
 	int rval;
 
-	rval = mincore(start, length, vec);
+	rval = mincore(start, length, (char *)vec);
 	if (rval == -1) {
 		tst_brkm(TBROK | TERRNO, NULL,
 			 "%s:%d: mincore() failed", file, lineno);
